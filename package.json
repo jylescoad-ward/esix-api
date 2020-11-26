@@ -1,0 +1,29 @@
+{
+  "name": "esix-api",
+  "version": "0.1.0",
+  "description": "Open Source API for e621.net ",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jylescoad-ward/esix-api.git"
+  },
+  "keywords": [
+    "e621",
+    "api",
+    "open",
+    "source"
+  ],
+  "author": "Jyles Coad-Wars [jyles@dariox.club]",
+  "license": "GPL-2.0-only",
+  "bugs": {
+    "url": "https://github.com/jylescoad-ward/esix-api/issues"
+  },
+  "homepage": "https://github.com/jylescoad-ward/esix-api#readme",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "form-data": "^3.0.0"
+  }
+}
