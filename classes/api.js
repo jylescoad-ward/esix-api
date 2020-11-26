@@ -109,15 +109,12 @@ class API {
 			console.error(e)
 		}
 	}
-	async getPoolsByQuery(queryName,pageNo) {
+	async getPoolsByQuery(queryName) {
 		try {
 			if (queryName === undefined) throw error("queryName is undefined");
-			var reqURL = `pool/index.json?query=${queryName}`
-			if (pageNo !== undefined && typeof pageNo == 'number') {
-				reqURL = `${reqURL}&page=${pageNo}`;
-			}
+			var reqURL = `pools.json?search[name_matches]=${queryName}&limit=5`
 			var req = await this._req(reqURL)
-			return req
+			return {pools:req}
 		} catch (e) {
 			console.error(e)
 		}
@@ -130,19 +127,19 @@ class API {
 			var poolReq = await this._req(reqURL);
 			await this.asyncForEach(poolReq.post_ids,async (pid)=>{
 				var req = await this._req(`posts/${pid}.json`);
-				retVal.posts.push(req.data.post)
+				retVal.posts.push(req.post)
 			})
 			return retVal;
 		} catch (e) {
 			console.error(e)
 		}
 	}
-	async getPool(poolID) {
+	async getPoolInfo(poolID) {
 		try {
 			if (poolID === undefined) throw error("PoolID is undefined");
 			var requestURL = `pools/${poolID}.json`
-			var req = this._req(requestURL)
-			return req;
+			var req = await this._req(requestURL)
+			return {pools:req};
 		} catch (e) {
 			console.error(e)
 		}
