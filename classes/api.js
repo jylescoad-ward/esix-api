@@ -8,30 +8,51 @@ class API {
 		this.key = cfg.key;
 	}
 
-	async _req(url) {
-		var formobj = new FormData()
-			formobj.append('login',this.username)
-			formobj.append('password_hash',this.key)
-		const options = {
-			method: 'get',
-			url: `https://e621.net/${url}`,
-			headers: {
-				'user-agent': `esix-api-${pkJSON.version}`,
-				'content-type': 'application/x-www-form-urlencoded',
-			},
-			data: {
-				login: this.username, password_hash: this.key
-			},
+	checkCreds(){
+		if (this.username == undefined) {
+			throw Error("'this.username' is undefined")
 		}
+		if (this.key == undefined) {
+			throw Error("'this.key' is undefined")
+		}
+	}
+
+	async asyncForEach (array, callback) {
+		for (let index = 0; index < array.length; index++) {
+			await callback(array[index], index, array)
+		}
+	}
+
+	async _req(url) {
 		try {
+			this.checkCreds()
+
+			var formobj = new FormData()
+				formobj.append('login',this.username)
+				formobj.append('password_hash',this.key)
+			const options = {
+				method: 'get',
+				url: `https://e621.net/${url}`,
+				headers: {
+					'user-agent': `esix-api-${pkJSON.version}`,
+					'content-type': 'application/x-www-form-urlencoded',
+				},
+				data: {
+					login: this.username, password_hash: this.key
+				},
+			}
 			const res = await axios(options)
-			console.debug(res.data)
+			if (res.status !== 200) {
+				throw `HTTP(S) ERROR: ${req.status} - ${req.statusText}`
+			} else {
+				return res.data;
+			}
 		} catch(e) {
 			console.error(e)
 		}
 	}
 
-	async posts(options) {
+	async getPostsByTag(options) {
 		/*
 		options = {
 			tags: [],
@@ -39,35 +60,91 @@ class API {
 		}
 		*/
 		try {
-			var limit = ` `;
-			if (options.limit > 1 || options.limit !== undefined) {
-				limit = `&limit=${options.limit}`;
-			}
-			var req = await this._req(`posts.json?tags=${options.tags.join("+")}`)
-			return req.posts
+			var limit = options.limit || "500";
+			var req = await this._req(`posts.json?tags=${options.tags.join("+")}&limit=${limit}`)
+			console.log(`[getPostsByTag] Fetched ${req.posts.length} posts with tag of ${options.tags.join("+")}`)
+			return req;
 		} catch (e) {
 			console.error(e);
 			return;
 		}
 	}
-	async poolSearch(queryName,pageNo) {
+	async getPostsByTags(options) {
+		/*
+		options = {
+			tags: [],
+			limit: <int>
+		}
+		*/
 		try {
-			if (queryName === undefined) return error("queryName is undefined.");
-			var reqURL = `pool/index.json?query=${queryName}`
-			if (pageNo !== undefined && typeof pageNo == 'number') {
-				reqURL+= `&page=${pageNo}`;
-			}
+			var posts = [];
+			await this.asyncForEach(options.tags,async (b)=>{
+				var o = await this._req(`posts.json?tags=${b}&limit=${options.limit || "320"}`)
+				var myThing = {
+					tag: b,
+					posts: []
+				};
+				o.posts.forEach((c)=>{
+					myThing.posts.push(c)
+				})
+				posts.push(myThing)
+			})
+			var allPostSize = 0;
+			await this.asyncForEach(posts,(p)=>{
+				allPostSize = allPostSize + p.posts.length
+				console.log(`[getPostsByTags] Tag: ${p.tag} => Fetched ${p.posts.length} posts.`)
+			})
+			console.log(`[getPostsByTags] Fetched ${allPostSize} posts`)
+			return posts;
 		} catch (e) {
-			throw e;
+			console.error(e)
 		}
 	}
-	async pool(poolID,page) {
+	async getPostByID(postID) {
 		try {
-			if (poolID === undefined) return error("PoolID is Undefined");
-			var requestURL = `pools.json`
-			var req = this._req(`pools.json`)
+			if (postID == undefined) return error("postID is undefined");
+			var res = await this._req(`posts/${postID}.json`);
+			return res;
 		} catch (e) {
-			throw e;
+			console.error(e)
+		}
+	}
+	async getPoolsByQuery(queryName,pageNo) {
+		try {
+			if (queryName === undefined) throw error("queryName is undefined");
+			var reqURL = `pool/index.json?query=${queryName}`
+			if (pageNo !== undefined && typeof pageNo == 'number') {
+				reqURL = `${reqURL}&page=${pageNo}`;
+			}
+			var req = await this._req(reqURL)
+			return req
+		} catch (e) {
+			console.error(e)
+		}
+	}
+	async getPoolPostsByID(poolID) {
+		try {
+			if (poolID == undefined) throw error("PoolID is undefined")
+			var reqURL = `pools/${poolID}.json`;
+			var retVal = {posts: []}
+			var poolReq = await this._req(reqURL);
+			await this.asyncForEach(poolReq.post_ids,async (pid)=>{
+				var req = await this._req(`posts/${pid}.json`);
+				retVal.posts.push(req.data.post)
+			})
+			return retVal;
+		} catch (e) {
+			console.error(e)
+		}
+	}
+	async getPool(poolID) {
+		try {
+			if (poolID === undefined) throw error("PoolID is undefined");
+			var requestURL = `pools/${poolID}.json`
+			var req = this._req(requestURL)
+			return req;
+		} catch (e) {
+			console.error(e)
 		}
 	}
 }
