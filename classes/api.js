@@ -144,8 +144,36 @@ class API {
 			console.error(e)
 		}
 	}
-	async getPostsByScore(score){
-		// ill work on this later, i need to experiment a little bit with their api.
+	async getPostsByScore(options) {
+		/*
+		options = {
+			tags: [],
+			limit: <int>
+		}
+		*/
+		try {
+			var posts = [];
+			await this.asyncForEach(options.tags,async (b)=>{
+				var o = await this._req(`posts.json?tags=score:${b}%3E&limit=${options.limit || "320"}`)
+				var myThing = {
+					tag: b,
+					posts: []
+				};
+				o.posts.forEach((c)=>{
+					myThing.posts.push(c)
+				})
+				posts.push(myThing)
+			})
+			var allPostSize = 0;
+			await this.asyncForEach(posts,(p)=>{
+				allPostSize = allPostSize + p.posts.length
+				console.log(`[getPostsByScore] Score: ${p.tag} => Fetched ${p.posts.length} posts.`)
+			})
+			console.log(`[getPostsByScore] Fetched ${allPostSize} posts`)
+			return posts;
+		} catch (e) {
+			console.error(e)
+		}
 	}
 }
 
