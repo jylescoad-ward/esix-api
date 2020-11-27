@@ -144,6 +144,9 @@ class API {
 			console.error(e)
 		}
 	}
+	async getPostsByScore(score){
+		// ill work on this later, i need to experiment a little bit with their api.
+	}
 }
 
 module.exports = API
