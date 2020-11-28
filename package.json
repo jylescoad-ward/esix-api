@@ -34,8 +34,6 @@
 		"configstore": "^5.0.1",
 		"form-data": "^3.0.0",
 		"minimist": "^1.2.5",
-		"node-progress": "^0.1.0",
-		"save": "^2.4.0",
-		"signale": "^1.4.0"
+		"save": "^2.4.0"
 	}
 }
