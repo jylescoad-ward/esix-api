@@ -10,7 +10,8 @@ global.gb = {
 		tags: [],
 		options: 
 		{
-			limit: 320
+			limit: 320,
+			threads: 4,
 		}
 	}),
 	m: {
