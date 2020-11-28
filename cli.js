@@ -26,7 +26,7 @@ global.gb = {
 		chalk: require("chalk"),
 		fs: require("fs"),
 		progress: require("node-progress"),
-		esix: require("./classes/api.js"),
+		esix: require("esix-api"),
 		packageJSON: require("./package.json"),
 		inq: require("inquirer"),
 
