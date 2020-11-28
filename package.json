@@ -19,7 +19,11 @@
 		"open",
 		"source"
 	],
-	"author": "Jyles Coad-Wars [jyles@dariox.club]",
+	"author": "Jyles Coad-Ward [jyles@dariox.club]",
+	"contributors": [
+		"Jyles Coad-Ward [jyles@dariox.club] (https://jyles.club)",
+		"zyme (https://zyrn.wtf)"
+	],
 	"license": "GPL-2.0-only",
 	"bugs": {
 		"url": "https://github.com/jylescoad-ward/esix-api/issues"
