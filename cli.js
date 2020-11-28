@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const { forEach } = require("async");
 var Configstore = require("configstore")
 
 global.gb = {
@@ -12,6 +11,10 @@ global.gb = {
 		{
 			limit: 320,
 			threads: 4,
+		},
+		auth: {
+			username: null,
+			key: null,
 		}
 	}),
 	m: {
@@ -20,6 +23,7 @@ global.gb = {
 		signale: require("signale"),
 		chalk: require("chalk"),
 		fs: require("fs"),
+		progress: require("node-progress"),
 		esix: require("./classes/api.js"),
 		packageJSON: require("./package.json"),
 
@@ -64,6 +68,8 @@ gb.argHandle = async ()=>{
 				process.exit(1);
 			}
 		})
+	} else {
+		// holy shit how am i going to do this
 	}
 }
 
