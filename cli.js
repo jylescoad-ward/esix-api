@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
 var Configstore = require("configstore");
-const { table } = require("console");
-const signale = require("signale");
 
 global.gb = {
 	cliConfig: new Configstore(`${require("./package.json").name}-cli`,
@@ -25,7 +23,7 @@ global.gb = {
 		signale: require("signale"),
 		chalk: require("chalk"),
 		fs: require("fs"),
-		progress: require("node-progress"),
+		progress: require("cli-progress"),
 		esix: require("esix-api"),
 		packageJSON: require("./package.json"),
 		inq: require("inquirer"),
@@ -81,7 +79,7 @@ gb.argHandle = async ()=>{
 		})
 		gb.commands.forEach((c)=>{
 			if (c.info.detection == tAV.join(" ").trim() || c.info.commands.join(" ").trim() == tAV.join(" ").trim()) {
-				signale.info(`Running "esix ${tAV.join(" ").trim()}"`)
+				gb.m.signale.info(`Running "esix ${tAV.join(" ").trim()}"`)
 				c.f(tAV);
 				return;
 			}
