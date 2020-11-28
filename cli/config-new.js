@@ -39,6 +39,7 @@ module.exports = {
 			answers.tags = answers.tags.split(",")
 			ans = answers;
 		});
+		console.log()
 		var config = gb.cliConfig;
 		config.clear()
 		gb.cliConfig.all = {
