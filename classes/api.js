@@ -49,7 +49,7 @@ class API {
 				return res.data;
 			}
 		} catch(e) {
-			console.error(e)
+			throw e
 		}
 	}
 
@@ -63,11 +63,9 @@ class API {
 		try {
 			var limit = options.limit || "500";
 			var req = await this._req(`posts.json?tags=${options.tags.join("+")}&limit=${limit}`)
-			console.log(`[getPostsByTag] Fetched ${req.posts.length} posts with tag of ${options.tags.join("+")}`)
 			return req;
 		} catch (e) {
-			console.error(e);
-			return;
+			throw e;
 		}
 	}
 	async getPostsByTags(options) {
@@ -93,12 +91,10 @@ class API {
 			var allPostSize = 0;
 			await this.asyncForEach(posts,(p)=>{
 				allPostSize = allPostSize + p.posts.length
-				console.log(`[getPostsByTags] Tag: ${p.tag} => Fetched ${p.posts.length} posts.`)
 			})
-			console.log(`[getPostsByTags] Fetched ${allPostSize} posts`)
 			return posts;
 		} catch (e) {
-			console.error(e)
+			throw e
 		}
 	}
 	async getPostByID(postID) {
@@ -107,7 +103,7 @@ class API {
 			var res = await this._req(`posts/${postID}.json`);
 			return res;
 		} catch (e) {
-			console.error(e)
+			throw e
 		}
 	}
 	async getPoolsByQuery(queryName) {
@@ -117,7 +113,7 @@ class API {
 			var req = await this._req(reqURL)
 			return {pools:req}
 		} catch (e) {
-			console.error(e)
+			throw e
 		}
 	}
 	async getPoolPostsByID(poolID) {
@@ -132,7 +128,7 @@ class API {
 			})
 			return retVal;
 		} catch (e) {
-			console.error(e)
+			throw e
 		}
 	}
 	async getPoolInfo(poolID) {
@@ -142,7 +138,7 @@ class API {
 			var req = await this._req(requestURL)
 			return {pools:req};
 		} catch (e) {
-			console.error(e)
+			throw e
 		}
 	}
 	async getPostsByScore(options) {
@@ -168,12 +164,10 @@ class API {
 			var allPostSize = 0;
 			await this.asyncForEach(posts,(p)=>{
 				allPostSize = allPostSize + p.posts.length
-				console.log(`[getPostsByScore] Score: ${p.tag} => Fetched ${p.posts.length} posts.`)
 			})
-			console.log(`[getPostsByScore] Fetched ${allPostSize} posts`)
 			return posts;
 		} catch (e) {
-			console.error(e)
+			throw e
 		}
 	}
 }
