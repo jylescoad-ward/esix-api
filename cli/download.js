@@ -31,6 +31,10 @@ module.exports = {
 					var fileName = `${post.id}.${post.file.ext}`;
 					var file = fs.createWriteStream(`${downloadDirectory}/${fileName}`);
 					if (typeof downloadLink != 'string') return;
+					if (fs.existsSync(fileName)) {
+						tagDownload.increment();
+						return;
+					}
 					var request = https.get(downloadLink,(res)=>{
 						res.pipe(file)
 						file.on('finish',()=>{
