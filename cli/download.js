@@ -29,28 +29,29 @@ module.exports = {
 				result.posts.forEach((post)=>{
 					var downloadLink = post.file.url;
 					var fileName = `${post.id}.${post.file.ext}`;
-					var file = fs.createWriteStream(`${downloadDirectory}/${fileName}`);
 					if (typeof downloadLink != 'string') return;
 					if (fs.existsSync(fileName)) {
 						tagDownload.increment();
 						return;
-					}
-					var request = https.get(downloadLink,(res)=>{
-						res.pipe(file)
-						file.on('finish',()=>{
-							file.close();
-							tagDownload.increment()
-							request.end();
-							return;
+					}else {
+						var request = https.get(downloadLink,(res)=>{
+							var file = fs.createWriteStream(`${downloadDirectory}/${fileName}`);
+							res.pipe(file)
+							file.on('finish',()=>{
+								file.close();
+								tagDownload.increment()
+								request.end();
+								return;
+							})
 						})
-					})
-					request.on('error',(err)=>{ // Handle errors
-						if (fs.existsSync(`${downloadDirectory}/${fileName}`)) {
-							fs.unlinkSync(`${downloadDirectory}/${fileName}`); // Delete the file async. (But we don't check the result)
-						}
-					});
-					request.end();
-					return;
+						request.on('error',(err)=>{ // Handle errors
+							if (fs.existsSync(`${downloadDirectory}/${fileName}`)) {
+								fs.unlinkSync(`${downloadDirectory}/${fileName}`); // Delete the file async. (But we don't check the result)
+							}
+						});
+						request.end();
+						return;
+					}
 				})
 			})
 		})
