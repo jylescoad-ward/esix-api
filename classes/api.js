@@ -43,7 +43,8 @@ class API {
 			}
 			const res = await axios(options)
 			if (res.status !== 200) {
-				throw `HTTP(S) ERROR: ${req.status} - ${req.statusText}`
+				new error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
+				return {};
 			} else {
 				return res.data;
 			}
