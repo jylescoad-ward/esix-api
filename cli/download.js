@@ -24,12 +24,19 @@ module.exports = {
 			if (!fs.existsSync(`${downloadBaseDirectory}/${tag}`)) {
 				fs.mkdirSync(downloadDirectory)
 			}
-			esix.getPostsByTag({tags:[tag],limit:config.options.limit}).then((result)=>{
-				var tagDownload = dl.create(result.posts.length,0,{task:tag})
+			esix.getPostsByTag({tags:[tag],limit:config.options.limit}).then((oldResult)=>{
+				var result = {posts:[]}
+				oldResult.posts.forEach((r)=>{
+					if (typeof r.file.url == 'string') {
+						result.posts.push(r);
+						return;
+					}
+				})
+				var tagDownload = dl.create(result.posts.length,0,{task:tag});
 				result.posts.forEach((post)=>{
 					var downloadLink = post.file.url;
-					var fileName = `${post.id}.${post.file.ext}`;
 					if (typeof downloadLink != 'string') return;
+					var fileName = `${post.id}.${post.file.ext}`;
 					if (fs.existsSync(fileName)) {
 						tagDownload.increment();
 						return;
@@ -48,8 +55,9 @@ module.exports = {
 							if (fs.existsSync(`${downloadDirectory}/${fileName}`)) {
 								fs.unlinkSync(`${downloadDirectory}/${fileName}`); // Delete the file async. (But we don't check the result)
 							}
+							console.error(err)
+							request.end();
 						});
-						request.end();
 						return;
 					}
 				})
