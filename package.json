@@ -31,6 +31,7 @@
 	"homepage": "https://github.com/jylescoad-ward/esix-api#readme",
 	"dependencies": {
 		"axios": "^0.21.0",
+		"chalk": "^4.1.0",
 		"configstore": "^5.0.1",
 		"form-data": "^3.0.0",
 		"minimist": "^1.2.5",
