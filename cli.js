@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-var Configstore = require("configstore")
+var Configstore = require("configstore");
+const { table } = require("console");
+const signale = require("signale");
 
 global.gb = {
 	cliConfig: new Configstore(`${require("./package.json").name}-cli`,
@@ -26,6 +28,7 @@ global.gb = {
 		progress: require("node-progress"),
 		esix: require("./classes/api.js"),
 		packageJSON: require("./package.json"),
+		inq: require("inquirer"),
 
 	},
 	asyncForEach: async (array,callback)=>{
@@ -70,6 +73,19 @@ gb.argHandle = async ()=>{
 		})
 	} else {
 		// holy shit how am i going to do this
+		var tAV = [];
+		process.argv.forEach((a)=>{
+			if (a == process.argv[0])return;
+			if (a == process.argv[1])return;
+			tAV.push(a)
+		})
+		gb.commands.forEach((c)=>{
+			if (c.info.detection == tAV.join(" ").trim() || c.info.commands.join(" ").trim() == tAV.join(" ").trim()) {
+				signale.info(`Running "esix ${tAV.join(" ").trim()}"`)
+				c.f(tAV);
+				return;
+			}
+		})
 	}
 }
 
