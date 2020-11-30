@@ -141,35 +141,6 @@ class API {
 			throw e
 		}
 	}
-	async getPostsByScore(options) {
-		/*
-		options = {
-			tags: [],
-			limit: <int>
-		}
-		*/
-		try {
-			var posts = [];
-			await this.asyncForEach(options.tags,async (b)=>{
-				var o = await this._req(`posts.json?tags=score:${b}%3E&limit=${options.limit || "320"}`)
-				var myThing = {
-					tag: b,
-					posts: []
-				};
-				o.posts.forEach((c)=>{
-					myThing.posts.push(c)
-				})
-				posts.push(myThing)
-			})
-			var allPostSize = 0;
-			await this.asyncForEach(posts,(p)=>{
-				allPostSize = allPostSize + p.posts.length
-			})
-			return posts;
-		} catch (e) {
-			throw e
-		}
-	}
 }
 
 module.exports = API
