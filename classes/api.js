@@ -24,32 +24,28 @@ class API {
 	}
 
 	async _req(url,g_method) {
-		try {
-			this.checkCreds()
+		this.checkCreds()
 
-			var formobj = new FormData()
-				formobj.append('login',this.username)
-				formobj.append('password_hash',this.key)
-			const options = {
-				method: g_method || 'get',
-				url: `https://e621.net/${url}`,
-				headers: {
-					'user-agent': `esix-api-${pkJSON.version}`,
-					'content-type': 'application/x-www-form-urlencoded',
-				},
-				data: {
-					login: this.username, password_hash: this.key
-				},
-			}
-			const res = await axios(options)
-			if (res.status !== 200) {
-				new error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
-				return {};
-			} else {
-				return res.data;
-			}
-		} catch(e) {
-			throw e
+		var formobj = new FormData()
+			formobj.append('login',this.username)
+			formobj.append('password_hash',this.key)
+		const options = {
+			method: g_method || 'get',
+			url: `https://e621.net/${url}`,
+			headers: {
+				'user-agent': `esix-api-${pkJSON.version}`,
+				'content-type': 'application/x-www-form-urlencoded',
+			},
+			data: {
+				login: this.username, password_hash: this.key
+			},
+		}
+		const res = await axios(options)
+		if (res.status !== 200) {
+			console.error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
+			return {};
+		} else {
+			return res.data;
 		}
 	}
 
@@ -57,12 +53,13 @@ class API {
 		/*
 		options = {
 			tags: [],
-			limit: <int>
+			limit: <int>,
+			page: <int>
 		}
 		*/
 		try {
-			var limit = options.limit || "500";
-			var req = await this._req(`posts.json?tags=${options.tags.join("+")}&limit=${limit}`)
+			var limit = options.limit || "1024";
+			var req = await this._req(`posts.json?tags=${options.tags.join("+")}&limit=${limit}&page=${options.page || '1'}`)
 			return req;
 		} catch (e) {
 			throw e;
@@ -72,13 +69,14 @@ class API {
 		/*
 		options = {
 			tags: [],
-			limit: <int>
+			limit: <int>,
+			page: <int>
 		}
 		*/
 		try {
 			var posts = [];
 			await this.asyncForEach(options.tags,async (b)=>{
-				var o = await this._req(`posts.json?tags=${b}&limit=${options.limit || "320"}`)
+				var o = await this._req(`posts.json?tags=${b}&limit=${options.limit || "320"}&page=${options.page || '1'}`)
 				var myThing = {
 					tag: b,
 					posts: []
@@ -109,7 +107,7 @@ class API {
 	async getPoolsByQuery(queryName) {
 		try {
 			if (queryName === undefined) throw error("queryName is undefined");
-			var reqURL = `pools.json?search[name_matches]=${queryName}&limit=5`
+			var reqURL = `pools.json?search[name_matches]=${queryName}&limit=5&page=${options.page || '1'}`
 			var req = await this._req(reqURL)
 			return {pools:req}
 		} catch (e) {
