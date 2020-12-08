@@ -23,7 +23,7 @@ class API {
 		}
 	}
 
-	async _req(url) {
+	async _req(url,g_method) {
 		try {
 			this.checkCreds()
 
@@ -31,7 +31,7 @@ class API {
 				formobj.append('login',this.username)
 				formobj.append('password_hash',this.key)
 			const options = {
-				method: 'get',
+				method: g_method || 'get',
 				url: `https://e621.net/${url}`,
 				headers: {
 					'user-agent': `esix-api-${pkJSON.version}`,
