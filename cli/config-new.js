@@ -27,11 +27,13 @@ module.exports = {
 				type: 'input',
 				name: 'username',
 				message: 'e621 Username\n>',
+				default: gb.cliConfig.all.auth.username
 			},
 			{
 				type: 'password',
 				name: 'key',
-				message: 'e621 API Key\n>'
+				message: 'e621 API Key\n>',
+				default: gb.cliConfig.all.auth.key
 			}
 		]
 		var ans = {};

@@ -1,6 +1,7 @@
 const fs = gb.m.fs;
 var dl = null;
 var startTime = null;
+const queue = require("./queue.js")
 function msToHMS( ms ) {
     // 1- Convert to seconds:
     var seconds = ms / 1000;
@@ -15,7 +16,9 @@ function msToHMS( ms ) {
 }
 function validateResult(location,originalMD5,tagDownload) {
 	var md5 = require("md5");
-	tagDownload.increment()
+	if (tagDownload != undefined) {
+		tagDownload.increment()
+	}
 
 	// If this returns true that means download it.
 	// If this returns false that  means skip this file.
@@ -37,11 +40,11 @@ function validateResult(location,originalMD5,tagDownload) {
 	})
 	var things1 = 0;
 	dl.bars.forEach((b)=>{
-		if (b.value === b.total) {
+		if (b.value == b.total) {
 			things1++
 		}
 	})
-	if (things1 === gb.cliConfig.all.tags.length) {
+	if (things1 == gb.cliConfig.all.tags.length) {
 		setTimeout(()=>{
 			var endTime = new Date().getTime()
 			console.log(`\r\nCompleted '${things1}' tag(s). Took ${msToHMS(Math.abs(endTime - startTime))}`)
@@ -70,20 +73,33 @@ module.exports = {
 			autopadding: true
 		 
 		}, progress.Presets.legacy  )
-		await gb.asyncForEach(config.tags,(tag)=>{
-			console.log(`Downloading tag "${tag}".`)
-			var downloadDirectory = `${downloadBaseDirectory}/${tag}`;
-			if (!fs.existsSync(`${downloadBaseDirectory}/${tag}`)) {
-				fs.mkdirSync(downloadDirectory)
-			}
-			esix.getPostsByTag({tags:[tag],limit:config.options.limit}).then((oldResult)=>{
+		try {
+			await gb.asyncForEach(config.tags,async (tag)=>{
+				var downloadDirectory = `${downloadBaseDirectory}/${tag}`;
+				if (!fs.existsSync(`${downloadBaseDirectory}/${tag}`)) {
+					fs.mkdirSync(downloadDirectory)
+				}
+				var oldResult = {posts:[]};
+				var totalPages = 2;
+				var pageQueue = new queue()
+				for (let i = 0; i < totalPages; i ++) {
+					pageQueue.add(async ()=>{
+						var t_posts = await esix.getPostsByTag({tags:[tag],limit:config.options.limit,page:i})
+						t_posts.posts.forEach((p)=>{
+							oldResult.posts.push(p)
+						})
+						return;
+					})
+				}
+				await pageQueue.start()
+
 				var result = {posts:[]}
 				oldResult.posts.forEach((r)=>{
-					if (typeof r.file.url == 'string') {
+					if (r.preview.url != undefined && typeof r.preview.url == 'string') {
 						result.posts.push(r);
 					}
 				})
-				var manifestLocation = `${downloadDirectory}/manifest-${startTime / 1000}.json`
+				var manifestLocation = `${downloadDirectory}/manifest-${Math.round(startTime / 1000)}.json`
 				fs.writeFile(manifestLocation,JSON.stringify(result,null,'\t'),(e)=>{
 					if (e) {
 						fs.unlinkSync(manifestLocation)
@@ -91,33 +107,46 @@ module.exports = {
 					}
 				})
 				var tagDownload = dl.create(result.posts.length,0,{task:tag})
+				var postQueue = new queue()
 				result.posts.forEach((post)=>{
-					var downloadLink = post.file.url;
-					var fileName = `${post.id}.${post.file.ext}`;
-					var fileLocation = `${downloadDirectory}/${fileName}`;
-					if(typeof downloadLink != 'string') return;
-					var doDownload = validateResult(fileLocation,post.file.md5,tagDownload);
-					if (!doDownload) {
-						return;
-					}
+					postQueue.add(async ()=>{
+						var downloadLink = post.file.url || post.sample.url || post.preview.url;
+						var givenMD5 = post.file.md5 || post.sample.md5 || post.preview.md5;
+						var fileName = `${post.id}.${post.file.ext}`;
+						var fileLocation = `${downloadDirectory}/${fileName}`;
+						if(typeof downloadLink != 'string') return;
+						var doDownload = validateResult(fileLocation,givenMD5);
+						if (!doDownload) {
+							return;
+						}
 
-					// Download Post
-					var request = https.get(downloadLink,(res)=>{
-						var file = fs.createWriteStream(fileLocation);
-						res.pipe(file)
-						file.on('finish',()=>{
-							file.close()
-							request.end()
-							validateResult(fileLocation,post.file.md5,tagDownload)
+						// Download Post
+						var request = await https.get(downloadLink,(res)=>{
+							var file = fs.createWriteStream(fileLocation);
+							res.pipe(file)
+							file.on('finish',()=>{
+								file.close();
+								request.end();
+								validateResult(fileLocation,givenMD5,tagDownload);
+								return;
+							})
+						})
+						request.on('error',(e)=>{
+							request.end();
+							validateResult(fileLocation,givenMD5,tagDownload);
+							return;
 						})
 					})
-					request.on('error',(e)=>{
-						request.end()
-						validateResult(fileLocation,post.file.md5,tagDownload);
-					})
+				})
+				postQueue.start(()=>{
+					return;
 				})
 			})
-		})
-		dl.stop()
+			dl.stop()
+		} catch (e) {
+			throw e;
+			console.error(e);
+		}
+		
 	}
 }
