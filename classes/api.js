@@ -23,7 +23,7 @@ class API {
 		}
 	}
 
-	async _req(url,g_method) {
+	async _req(url,g_method,g_data) {
 		this.checkCreds()
 
 		var formobj = new FormData()
@@ -36,10 +36,10 @@ class API {
 				'user-agent': `esix-api-${pkJSON.version}`,
 				'content-type': 'application/x-www-form-urlencoded',
 			},
-			data: {
-				login: this.username, password_hash: this.key
-			},
+			data: g_data || {},
 		}
+		options.data.login = this.username;
+		options.data.password_hash = this.username
 		const res = await axios(options)
 		if (res.status !== 200) {
 			console.error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
