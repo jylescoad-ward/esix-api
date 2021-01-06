@@ -48,6 +48,9 @@ class API {
 			console.error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
 			return {posts:[]};
 		} else {
+			if (res.data.posts == undefined) {
+				return res.data;
+			}
 			var tempData = {posts:[]};
 			await this.asyncForEach(res.data.posts,(p)=>{
 				tempData.posts.push(PostManager(p,this));
