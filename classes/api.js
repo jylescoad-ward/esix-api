@@ -2,6 +2,8 @@ const axios = require("axios");
 const FormData = require("form-data")
 const pkJSON = require("./../package.json")
 
+const PostManager = require("./post.js")
+
 class API {
 	constructor(cfg) {
 		this.username = cfg.username;
@@ -26,11 +28,8 @@ class API {
 	async _req(url,g_method,g_data) {
 		this.checkCreds()
 
-		var formobj = new FormData()
-			formobj.append('login',this.username)
-			formobj.append('password_hash',this.key)
 		const options = {
-			method: g_method || 'get',
+			method: g_method || 'GET',
 			url: `https://e621.net/${url}`,
 			headers: {
 				'user-agent': `esix-api-${pkJSON.version}`,
@@ -39,13 +38,21 @@ class API {
 			data: g_data || {},
 		}
 		options.data.login = this.username;
-		options.data.password_hash = this.username
+		options.data.api_key = this.key;
+		options.method = options.method.toUpperCase()
+		if (options.mehod == "POST") {
+			options.headers['content-type'] = "application/json";
+		}
 		const res = await axios(options)
 		if (res.status !== 200) {
 			console.error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
-			return {};
+			return {posts:[]};
 		} else {
-			return res.data;
+			var tempData = {posts:[]};
+			await this.asyncForEach(res.data.posts,(p)=>{
+				tempData.posts.push(PostManager(p,this));
+			})
+			return tempData;
 		}
 	}
 
