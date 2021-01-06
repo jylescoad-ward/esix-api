@@ -8,5 +8,5 @@ A pretty simple API for [e621](https://e621.net) (NSFW), written in node.js that
 ### Supported Versions
 | Version | Status |
 | - | - |
-| 0.1.4 | :heavy_check_mark: |
-| < 0.1.4 | :x: |
+| 0.1.6 | :heavy_check_mark: |
+| < 0.1.6 | :x: |
