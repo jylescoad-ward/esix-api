@@ -44,7 +44,11 @@ class API {
 			options.headers['content-type'] = "application/json";
 		}
 		if (typeof window != undefined) {
-			options.url = `${options.url}&_client=esix-api_${pkJSON.version}`;
+			if (options.url.includes("?")) {
+				options.url = `${options.url}&_client=esix-api_${pkJSON.version}`;
+			} else {
+				options.url = `${options.url}?_client=esix-api_${pkJSON.version}`;
+			}
 			options.data._client = `esix-api_${pkJSON.version}`;
 		}
 		const res = await axios(options)
