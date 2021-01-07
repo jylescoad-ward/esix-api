@@ -40,7 +40,7 @@ class API {
 		options.data.login = this.username;
 		options.data.api_key = this.key;
 		options.method = options.method.toUpperCase()
-		if (options.mehod == "POST") {
+		if (options.method == "POST" || options.method == "DELETE") {
 			options.headers['content-type'] = "application/json";
 		}
 		if (typeof window != undefined) {
@@ -152,6 +152,16 @@ class API {
 		} catch (e) {
 			throw e
 		}
+	}
+	async votePost (direction,id,nounvote) {
+		var voteDirection = '0';
+		if (direction == true) {
+			voteDirection = '1';
+		} else if (direction == false) {
+			voteDirection = '-1';
+		}
+		var response = await this._req(`posts/${id}/votes.json`,'post',{score:voteDirection,no_unvote:nounvote || true});
+		return response;
 	}
 }
 
