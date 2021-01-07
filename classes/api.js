@@ -32,7 +32,7 @@ class API {
 			method: g_method || 'GET',
 			url: `https://e621.net/${url}`,
 			headers: {
-				'user-agent': `esix-api-${pkJSON.version}`,
+				'user-agent': `esix-api_${pkJSON.version}`,
 				'content-type': 'application/x-www-form-urlencoded',
 			},
 			data: g_data || {},
@@ -42,6 +42,10 @@ class API {
 		options.method = options.method.toUpperCase()
 		if (options.mehod == "POST") {
 			options.headers['content-type'] = "application/json";
+		}
+		if (typeof window != undefined) {
+			options.url = `${options.url}&_client=esix-api_${pkJSON.version}`;
+			options.data._client = `esix-api_${pkJSON.version}`;
 		}
 		const res = await axios(options)
 		if (res.status !== 200) {
