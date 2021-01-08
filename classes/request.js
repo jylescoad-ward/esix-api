@@ -55,7 +55,7 @@ module.exports = async (g_url,g_method,g_data,g_creds) => {
 			}
 			var tempData = {posts:[]};
 			await asyncForEach(res.data.posts,(p)=>{
-				tempData.posts.push(PostManager.gen(p,g_creds));
+				tempData.posts.push(PostManager.gen(p,g_creds,res));
 			})
 			return tempData;
 		}

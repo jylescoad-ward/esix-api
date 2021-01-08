@@ -6,12 +6,13 @@ async function req(u,m,d) {
 	return httpRequest(u,m,d,creds);
 }
 
-module.exports.gen = (g_data,g_creds) => {
+module.exports.gen = (g_data,g_creds,g_res) => {
 	creds = g_creds;
 	raw = g_data;
 
 	raw.vote = module.exports.vote;
 	raw.favorite = module.exports.favorite;
+	raw.raw = g_res;
 	return raw;
 }
 
