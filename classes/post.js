@@ -12,7 +12,7 @@ module.exports.gen = (g_data,g_creds,g_res) => {
 
 	raw.vote = module.exports.vote;
 	raw.favorite = module.exports.favorite;
-	raw.raw = g_res;
+	raw.rawResponse = g_res.request.response;
 	return raw;
 }
 
