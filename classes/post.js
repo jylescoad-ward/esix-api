@@ -5,14 +5,24 @@ async function req(u,m,d) {
 	const httpRequest = require("./request.js");
 	return httpRequest(u,m,d,creds);
 }
-
+async function checkFavorite(g_pid) {
+	const favorites = await req('favorites.json');
+	var found = false
+	favorites.posts.forEach((p)=>{
+		if (g_pid == p.id) {
+			return true;
+			found = true
+		}
+	})
+	return found
+}
 module.exports.gen = (g_data,g_creds,g_res) => {
 	creds = g_creds;
 	raw = g_data;
 
 	raw.vote = module.exports.vote;
 	raw.favorite = module.exports.favorite;
-	raw.rawResponse = g_res.request.response;
+	raw.rawResponse = g_res;
 	return raw;
 }
 

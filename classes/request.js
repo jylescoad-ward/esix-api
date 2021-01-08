@@ -50,11 +50,12 @@ module.exports = async (g_url,g_method,g_data,g_creds) => {
 			}
 			return resData;
 		} else {
+			console.log(res)
 			if (res.data.posts == undefined) {
 				return res.data;
 			}
 			var tempData = {posts:[]};
-			await asyncForEach(res.data.posts,(p)=>{
+			res.data.posts.forEach((p)=>{
 				tempData.posts.push(PostManager.gen(p,g_creds,res));
 			})
 			return tempData;

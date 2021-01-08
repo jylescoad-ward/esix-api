@@ -1,6 +1,6 @@
 {
 	"name": "esix-api",
-	"version": "0.1.12",
+	"version": "0.1.13",
 	"description": "Open Source API for e621.net ",
 	"main": "index.js",
 	"repository": {
