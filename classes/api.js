@@ -1,6 +1,7 @@
 const axios = require("axios");
 const FormData = require("form-data")
 const pkJSON = require("./../package.json")
+var httpRequest = require("./request.js");
 
 const PostManager = require("./post.js")
 
@@ -8,6 +9,10 @@ class API {
 	constructor(cfg) {
 		this.username = cfg.username;
 		this.key = cfg.key;
+	}
+
+	async _req (u,m,d){
+		return httpRequest(u,m,d,{username:this.username,key:this.key});
 	}
 
 	checkCreds(){
@@ -22,48 +27,6 @@ class API {
 	async asyncForEach (array, callback) {
 		for (let index = 0; index < array.length; index++) {
 			await callback(array[index], index, array)
-		}
-	}
-
-	async _req(url,g_method,g_data) {
-		this.checkCreds()
-
-		const options = {
-			method: g_method || 'GET',
-			url: `https://e621.net/${url}`,
-			headers: {
-				'user-agent': `esix-api_${pkJSON.version}`,
-				'content-type': 'application/x-www-form-urlencoded',
-			},
-			data: g_data || {},
-		}
-		options.data.login = this.username;
-		options.data.api_key = this.key;
-		options.method = options.method.toUpperCase()
-		if (options.method == "POST" || options.method == "DELETE") {
-			options.headers['content-type'] = "application/json";
-		}
-		if (typeof window != undefined) {
-			if (options.url.includes("?")) {
-				options.url = `${options.url}&_client=esix-api_${pkJSON.version}`;
-			} else {
-				options.url = `${options.url}?_client=esix-api_${pkJSON.version}`;
-			}
-			options.data._client = `esix-api_${pkJSON.version}`;
-		}
-		const res = await axios(options)
-		if (res.status !== 200) {
-			console.error(`HTTP(S) ERROR: ${req.status} - ${req.statusText}`)
-			return {posts:[]};
-		} else {
-			if (res.data.posts == undefined) {
-				return res.data;
-			}
-			var tempData = {posts:[]};
-			await this.asyncForEach(res.data.posts,(p)=>{
-				tempData.posts.push(PostManager(p,this));
-			})
-			return tempData;
 		}
 	}
 
