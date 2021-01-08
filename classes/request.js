@@ -1,18 +1,19 @@
 const axios = require("axios");
 const pkJSON = require("./../package.json")
 const PostManager = require("./post");
+var queue = require("./queue")
 async function asyncForEach (array, callback) {
 	for (let index = 0; index < array.length; index++) {
 		await callback(array[index], index, array)
 	}
 }
-module.exports = async (g_url,g_method,g_data,g_creds) => {
+module.exports = async (g_url,g_method,g_data,g_creds,g_checkFav) => {
 	const options = {
 		method: g_method || 'GET',
 		url: `https://e621.net/${g_url}`,
 		headers: {
 			'user-agent': `esix-api_${pkJSON.version}`,
-			'content-type': 'application/x-www-form-urlencoded',
+			'content-type': "application/json",
 		},
 		data: g_data || {},
 	}
@@ -25,6 +26,8 @@ module.exports = async (g_url,g_method,g_data,g_creds) => {
 	if (typeof window != undefined) {
 		if (options.url.includes("?")) {
 			options.url = `${options.url}&_client=esix-api_${pkJSON.version}`;
+		} else if (options.url.includes("favorites.json")) {
+			options.url = options.url;
 		} else {
 			options.url = `${options.url}?_client=esix-api_${pkJSON.version}`;
 		}
@@ -55,8 +58,22 @@ module.exports = async (g_url,g_method,g_data,g_creds) => {
 				return res.data;
 			}
 			var tempData = {posts:[]};
-			res.data.posts.forEach((p)=>{
-				tempData.posts.push(PostManager.gen(p,g_creds,res));
+			var postQueue = new queue({log:true});
+			if (g_checkFav == true) {
+				var favorites = await module.exports(`posts.json?tags=fav%3A${g_creds.username}`,undefined,undefined,g_creds)
+			}
+			await asyncForEach(res.data.posts,(p)=>{
+				if (g_checkFav) {
+					asyncForEach(favorites.posts,(fp)=>{
+						if (fp.id == p.id && g_checkFav == true) {
+							p.is_favorited = 'true';
+							console.debug(`${p.id} is favorite!`)
+						}
+					})
+					tempData.posts.push(PostManager.gen(p,g_creds,res));
+				} else {
+					tempData.posts.push(PostManager.gen(p,g_creds,res));
+				}
 			})
 			return tempData;
 		}

@@ -12,7 +12,7 @@ class API {
 	}
 
 	async _req (u,m,d){
-		return httpRequest(u,m,d,{username:this.username,key:this.key});
+		return httpRequest(u,m,d,{username:this.username,key:this.key},true);
 	}
 
 	checkCreds(){
