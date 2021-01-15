@@ -80,8 +80,8 @@ module.exports = {
 					fs.mkdirSync(downloadDirectory)
 				}
 				var oldResult = {posts:[]};
-				var totalPages = 2;
-				var pageQueue = new queue()
+				var totalPages = 16;
+				var pageQueue = new queue({log:true})
 				for (let i = 0; i < totalPages; i ++) {
 					pageQueue.add(async ()=>{
 						var t_posts = await esix.getPostsByTag({tags:[tag],limit:config.options.limit,page:i})
@@ -116,26 +116,26 @@ module.exports = {
 						var fileLocation = `${downloadDirectory}/${fileName}`;
 						if(typeof downloadLink != 'string') return;
 						var doDownload = validateResult(fileLocation,givenMD5);
-						if (!doDownload) {
-							return;
-						}
-
-						// Download Post
-						var request = await https.get(downloadLink,(res)=>{
-							var file = fs.createWriteStream(fileLocation);
-							res.pipe(file)
-							file.on('finish',()=>{
-								file.close();
+						if (doDownload) {
+							// Download Post
+							var request = await https.get(downloadLink,(res)=>{
+								var file = fs.createWriteStream(fileLocation);
+								res.pipe(file)
+								file.on('finish',()=>{
+									file.close();
+									request.end();
+									validateResult(fileLocation,givenMD5,tagDownload);
+									return;
+								})
+							})
+							request.on('error',(e)=>{
 								request.end();
 								validateResult(fileLocation,givenMD5,tagDownload);
 								return;
 							})
-						})
-						request.on('error',(e)=>{
-							request.end();
-							validateResult(fileLocation,givenMD5,tagDownload);
+						} else {
 							return;
-						})
+						}
 					})
 				})
 				postQueue.start(()=>{
@@ -144,7 +144,6 @@ module.exports = {
 			})
 			dl.stop()
 		} catch (e) {
-			throw e;
 			console.error(e);
 		}
 		
