@@ -14,7 +14,7 @@ async function checkFavorite(g_pid) {
 			found = true
 		}
 	})
-	return found
+	return found;
 }
 module.exports.gen = (g_data,g_creds,g_res) => {
 	creds = g_creds;
@@ -22,6 +22,22 @@ module.exports.gen = (g_data,g_creds,g_res) => {
 
 	raw.vote = module.exports.vote;
 	raw.favorite = module.exports.favorite;
+	
+	if (raw.file.md5 != undefined && raw.file.ext != undefined && raw.file.ext != "swf") {
+		raw.file.url = 'https://static1.e621.net/data/' + raw.file.md5.slice(0, 2)  + '/' + raw.file.md5.slice(2, 4) + '/' + raw.file.md5 + '.' + raw.file.ext;
+		if (raw.sample.has) {
+			raw.sample.url = 'https://static1.e621.net/data/sample/' + raw.file.md5.slice(0, 2)  + '/' + raw.file.md5.slice(2, 4) + '/' + raw.file.md5 + '.jpg';
+		}
+		switch (raw.file.ext) {
+			case "png":
+			case "jpg":
+			case "webm":
+				raw.preview.url = 'https://static1.e621.net/data/preview/' + raw.file.md5.slice(0, 2)  + '/' + raw.file.md5.slice(2, 4) + '/' + raw.file.md5 + '.jpg';
+				break;
+		}
+		
+	}
+	
 	raw.rawResponse = g_res;
 	return raw;
 }
