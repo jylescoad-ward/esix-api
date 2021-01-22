@@ -60,7 +60,8 @@ class API {
 				var o = await this._req(`posts.json?tags=${b}&limit=${options.limit || "320"}&page=${options.page || '1'}`)
 				var myThing = {
 					tag: b,
-					posts: []
+					posts: [],
+					page: options.page
 				};
 				o.posts.forEach((c)=>{
 					myThing.posts.push(c)
