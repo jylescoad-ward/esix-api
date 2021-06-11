@@ -1,0 +1,17 @@
+{
+    "unhandledException": "FUCK! A Wild \"Unhandled Exception\" Appeared.\n\nIf you don't know what this means then you really should create an issue. https://github.com/jylescoad-ward/esix-api/issues/",
+    "validation": {
+        "undefinedConfiguration": "Configuration is undefined. Please check documentation",
+        "undefinedUsername": "Username is Undefined in this.Configuration",
+        "invalidUsername": "Password is invalid (Failed RegEx Match)",
+        "undefinedPassword": "Password is undefined in this.Configuration",
+        "invalidPassword": "Password is invalid (Failed RegEx Match)"
+    },
+    "account": {
+        "invalidCredentials": "e621 Credentials are Invalid"
+    },
+    "post": {
+        "missingContent": "Content Missing, Reason: %reason%",
+        "removed": "Content Removed, Reason: %reason%"
+    }
+}
